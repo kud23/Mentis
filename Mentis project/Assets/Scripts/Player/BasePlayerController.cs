@@ -17,12 +17,12 @@ public class BasePlayerController : MonoBehaviour
     public float groundCheckDistance = 0.05f;
 
     [Space]
-    public float jumpForce = 5.0f;
+    public float jumpForce = 8.5f;
     public int maxJumps = 1;
-    public float walkForce = 3.0f;
+    public float walkForce = 50.0f;
     public float walkSpeed = 3.0f;
     public float runSpeed = 6.0f;
-    private float maxSpeed = 3.0f;
+    private float currentSpeed = 5.0f;
     public float airMovementMultiplier = 0.15f;
 
     [Space]
@@ -32,13 +32,13 @@ public class BasePlayerController : MonoBehaviour
     private float camRotationY;
 
     [Space]
-    public float friction = 10.0f;
-    public float minVelocity = 0.1f;
+    public float friction = 15.0f;
+    public float minVelocity = 0.5f;
     public float maxSlopeAngle = 45.0f;
     public float slopeRayLength = 0.5f;
 
     [Space]
-    public float gravityMultiplier = 1.0f;
+    public float gravityMultiplier = 0.9f;
     public float extraGravity = 2.0f;
     public float extraGravityTimeAfterSlope = 0.3f;
 
@@ -67,7 +67,7 @@ public class BasePlayerController : MonoBehaviour
         jumpsLeft = maxJumps;
         playerRigidBody = GetComponent<Rigidbody>();
         playerCollider = GetComponent<CapsuleCollider>();
-        maxSpeed = walkSpeed;
+        currentSpeed = walkSpeed;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -85,11 +85,11 @@ public class BasePlayerController : MonoBehaviour
 
         if (Input.GetButton("Sprint"))
         {
-            maxSpeed = runSpeed;
+            currentSpeed = runSpeed;
         }
         else
         {
-            maxSpeed = walkSpeed;
+            currentSpeed = walkSpeed;
         }
 
         MoveCamera();
@@ -107,7 +107,7 @@ public class BasePlayerController : MonoBehaviour
             lastTimeOnSlope = Time.time;
         }
 
-        if (isGrounded)
+        if (isGrounded && OnFlatGround())
         {
             jumpsLeft = maxJumps;
         }
@@ -118,7 +118,7 @@ public class BasePlayerController : MonoBehaviour
         {
             pressedJump = false;
 
-            if (isGrounded || jumpsLeft > 0)
+            if (isGrounded && OnFlatGround() || jumpsLeft > 0)
             {
                 Jump();
             }
@@ -129,9 +129,6 @@ public class BasePlayerController : MonoBehaviour
 
     void MoveCamera()
     {
-        //float mouseX = Input.GetAxis("Mouse X");
-        //float mouseY = Input.GetAxis("Mouse Y");
-
         float rotX = Input.GetAxis("Mouse X") * mouseSensitivityX * Time.deltaTime;
         float rotY = Input.GetAxis("Mouse Y") * mouseSensitivityY * Time.deltaTime;
 
@@ -139,10 +136,10 @@ public class BasePlayerController : MonoBehaviour
         camRotationX = Mathf.Clamp(camRotationX, -90f, 90f);
         camRotationY -= rotX * -1;
 
+        float finalRotationX = playerCamera.transform.rotation.x + camRotationX;
+        float finalRotationY = playerCamera.transform.rotation.y + camRotationY;
 
-        //rotX = Mathf.Clamp(rotX, -90, 90);
-
-        playerCamera.transform.rotation = Quaternion.Euler(camRotationX, camRotationY, 0f);
+        playerCamera.transform.rotation = Quaternion.Euler(finalRotationX, finalRotationY, 0f);
     }
 
     private void RotateBodyToLookingDirection()
@@ -189,16 +186,16 @@ public class BasePlayerController : MonoBehaviour
             playerRigidBody.AddForce(walkForce * finalDir);
         }
 
-        if (currentVelocity.magnitude > maxSpeed)
+        if (currentVelocity.magnitude > currentSpeed)
         {
             if (isGrounded && OnFlatGround())
             {
-                Vector3 clamped = Vector3.ClampMagnitude(playerRigidBody.velocity, maxSpeed);
+                Vector3 clamped = Vector3.ClampMagnitude(playerRigidBody.velocity, currentSpeed);
                 playerRigidBody.velocity = clamped;
             }
             else if (!isGrounded)
             {
-                Vector3 horizontalClamped = Vector3.ClampMagnitude(new Vector3(playerRigidBody.velocity.x, 0, playerRigidBody.velocity.z), maxSpeed);
+                Vector3 horizontalClamped = Vector3.ClampMagnitude(new Vector3(playerRigidBody.velocity.x, 0, playerRigidBody.velocity.z), currentSpeed);
                 playerRigidBody.velocity = horizontalClamped + Vector3.up * playerRigidBody.velocity.y;
             }
         }
