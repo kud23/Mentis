@@ -60,7 +60,7 @@ public class BasePlayerController : MonoBehaviour
     private Vector3 movementInput;
     private float forward;
     private float sideways;
-    private float timeOfLastMove;
+    private float timeOfLastJump;
 
     void Start()
     {
@@ -118,9 +118,14 @@ public class BasePlayerController : MonoBehaviour
         {
             pressedJump = false;
 
-            if (isGrounded && OnFlatGround() || jumpsLeft > 0)
+            if (timeOfLastJump >= Time.fixedTime)
+            {
+                return;
+            }
+            else if (isGrounded && OnFlatGround() || jumpsLeft > 0)
             {
                 Jump();
+                timeOfLastJump = Time.fixedTime;
             }
         }
         Movement();
