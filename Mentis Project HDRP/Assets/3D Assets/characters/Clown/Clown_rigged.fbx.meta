@@ -9,6 +9,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Clown
     second: {fileID: 2100000, guid: c7762be148fac3f468ab47424935f506, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Clownhair
+    second: {fileID: 2100000, guid: 5300a2934f6ff5b4a95d8375b0db7c0d, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
