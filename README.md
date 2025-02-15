@@ -1,4 +1,4 @@
 # Mentis
-First attempt at a video game
+A distant memory, lost in the sea.
 
 This will be our version control for "Mentis"
